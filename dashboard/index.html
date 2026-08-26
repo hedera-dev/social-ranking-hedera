@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Social Ranking — Hedera</title>
+<meta name="description" content="Cómo se compara Hedera frente a otros proyectos cripto en conversación social, qué temas están en tendencia, y qué está funcionando en @HederaCommunity.">
+<style>
+  :root{
+    --bg: #08080b;
+    --bg-card: #131319;
+    --bg-card-2: #15151d;
+    --border: rgba(255,255,255,0.08);
+    --text-heading: #f2efe9;
+    --text-body: #a3a3ad;
+    --text-muted: #6d6d78;
+    --purple: #a596f2;
+    --purple-dim: rgba(139,124,246,0.14);
+    --green-bg: rgba(34,197,94,0.12);
+    --green-text: #4fd08a;
+    --gray-badge-bg: rgba(255,255,255,0.06);
+    --gray-badge-text: #a3a3ad;
+    --amber-bg: rgba(217,161,44,0.16);
+    --amber-text: #e3b256;
+    --rose-bg: rgba(225,29,72,0.16);
+    --rose-text: #f27289;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text-body);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{
+    font-family:Georgia,"Iowan Old Style","Times New Roman",serif;
+    color:var(--text-heading);
+    font-weight:400;
+    margin:0;
+  }
+  code{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:rgba(255,255,255,0.07);
+    padding:0.15em 0.4em;
+    border-radius:4px;
+    font-size:0.9em;
+    color:#d7d3ea;
+  }
+  a{color:var(--purple);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+
+  .wrap{max-width:1040px;margin:0 auto;padding:64px 24px 96px;}
+
+  .breadcrumb{
+    font-size:12px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--purple);
+    margin-bottom:20px;
+  }
+  .breadcrumb a{color:var(--purple);}
+  .breadcrumb .sep{color:var(--text-muted);margin:0 6px;}
+
+  h1.title{font-size:40px;line-height:1.15;margin-bottom:24px;}
+
+  p.lede{font-size:18px;color:var(--text-body);max-width:760px;margin-bottom:28px;}
+
+  .badges{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:36px;}
+  .badge{
+    display:inline-flex;align-items:center;gap:6px;
+    font-size:13px;padding:6px 12px;border-radius:999px;
+    background:var(--gray-badge-bg);color:var(--gray-badge-text);
+  }
+  .badge.green{background:var(--green-bg);color:var(--green-text);}
+  .badge .dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
+
+  hr.divider{border:none;border-top:1px solid var(--border);margin:0 0 48px;}
+
+  section{margin-bottom:64px;}
+  h2.section-title{font-size:26px;margin-bottom:12px;}
+  p.section-sub{font-size:15px;color:var(--text-body);max-width:760px;margin-bottom:28px;}
+
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+
+  .card{
+    background:var(--bg-card);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:24px;
+  }
+  .card h3{font-size:19px;margin-bottom:12px;}
+  .card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px;}
+  .card p{font-size:14.5px;color:var(--text-body);margin:0 0 14px;}
+  .card p:last-child{margin-bottom:0;}
+
+  .pill{
+    display:inline-flex;align-items:center;gap:6px;
+    font-size:12px;padding:4px 11px;border-radius:999px;
+    background:var(--green-bg);color:var(--green-text);white-space:nowrap;
+  }
+  .pill .dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
+
+  .tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+  .tag{
+    font-size:12.5px;padding:5px 11px;border-radius:8px;
+    background:rgba(255,255,255,0.05);color:#c7c7cf;
+    border:1px solid var(--border);
+  }
+
+  .topic-icon{
+    display:inline-flex;align-items:center;justify-content:center;
+    font-size:12px;font-weight:600;letter-spacing:0.02em;
+    padding:6px 12px;border-radius:8px;
+    background:var(--purple-dim);color:var(--purple);
+    margin-bottom:16px;
+  }
+
+  .stat-num{font-family:Georgia,"Times New Roman",serif;font-size:34px;color:var(--purple);margin-bottom:6px;}
+
+  .format-title{font-family:Georgia,"Times New Roman",serif;font-size:28px;color:var(--purple);margin-bottom:10px;}
+
+  table{width:100%;border-collapse:collapse;font-size:14.5px;}
+  thead th{
+    text-align:left;font-size:11.5px;letter-spacing:0.06em;text-transform:uppercase;
+    color:var(--text-muted);font-weight:500;padding:14px 16px;border-bottom:1px solid var(--border);
+  }
+  tbody td{padding:16px;border-bottom:1px solid var(--border);color:var(--text-heading);}
+  tbody tr:last-child td{border-bottom:none;}
+  .rank{color:var(--text-muted);font-size:12px;margin-left:4px;}
+  .table-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+  tbody tr.highlight td{background:var(--purple-dim);}
+  tbody tr.highlight td:first-child{font-weight:600;}
+
+  .section-head-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+
+  .insight{
+    display:flex;gap:16px;
+    background:var(--bg-card);border:1px solid var(--border);border-radius:12px;
+    padding:20px 24px;margin-bottom:14px;align-items:flex-start;
+  }
+  .insight p{font-size:15px;color:var(--text-body);margin:0;}
+  .insight strong{color:var(--text-heading);}
+  .tag-label{
+    flex-shrink:0;font-size:11px;font-weight:700;letter-spacing:0.04em;
+    padding:5px 10px;border-radius:6px;white-space:nowrap;margin-top:1px;
+  }
+  .tag-label.riesgo{background:var(--amber-bg);color:var(--amber-text);}
+  .tag-label.oportunidad{background:var(--green-bg);color:var(--green-text);}
+  .tag-label.accion{background:var(--rose-bg);color:var(--rose-text);}
+
+  .notice{font-size:13.5px;color:var(--text-muted);margin-top:18px;}
+  .notice strong{color:var(--text-body);}
+
+  footer{
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;
+    font-size:12.5px;color:var(--text-muted);
+    border-top:1px solid var(--border);padding-top:24px;
+  }
+  footer a{color:var(--text-muted);text-decoration:underline;}
+
+  @media (max-width:760px){
+    .grid-2,.grid-3{grid-template-columns:1fr;}
+    h1.title{font-size:30px;}
+    table{font-size:13px;}
+    thead th, tbody td{padding:10px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="breadcrumb">
+    PROGRAMA DE EMBAJADORES HEDERA <span class="sep">·</span> PILAR DE CONTENIDO <span class="sep">·</span>
+    <a href="https://x.com/HederaCommunity" target="_blank" rel="noopener">@HEDERACOMMUNITY</a>
+  </div>
+
+  <h1 class="title">Social Ranking — Hedera</h1>
+
+  <p class="lede">Cómo se compara Hedera frente a otros proyectos cripto en conversación social, qué temas están en tendencia, y qué está funcionando (o no) en @HederaCommunity — con recomendaciones para el equipo ejecutivo.</p>
+
+  <div class="badges">
+    <span class="badge"><span class="dot"></span>Datos LunarCrush del 2026-08-05, 16:16 UTC</span>
+    <span class="badge green"><span class="dot"></span>Camino 1 · LunarCrush API — activo</span>
+    <span class="badge green"><span class="dot"></span>Camino 2 · Investigación cualitativa — listo</span>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Estado del proyecto -->
+  <section>
+    <h2 class="section-title">Estado del proyecto</h2>
+    <div class="grid-2" style="margin-top:24px;">
+      <div class="card">
+        <div class="card-head">
+          <h3>Camino 1 — LunarCrush API</h3>
+          <span class="pill"><span class="dot"></span>Activo</span>
+        </div>
+        <p>Plan <strong>Individual</strong> conectado. Los números de las secciones de abajo (ranking, tipos de contenido, top creadores) vienen en vivo de LunarCrush, no son estimaciones.</p>
+        <div class="tags">
+          <span class="tag">Interacciones</span>
+          <span class="tag">Volumen social</span>
+          <span class="tag">N° creadores</span>
+          <span class="tag">Sentiment</span>
+          <span class="tag">Galaxy Score</span>
+          <span class="tag">AltRank</span>
+          <span class="tag">Rendimiento por tipo de contenido</span>
+        </div>
+        <p>Para refrescar: <code>python scripts/collect_data.py</code> → <code>python scripts/build_report.py</code>. Recomendado: correrlo con cadencia semanal fija. Detalle en <code>README.md</code>.</p>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <h3>Camino 2 — Investigación con mis capacidades</h3>
+          <span class="pill"><span class="dot"></span>Listo</span>
+        </div>
+        <p>Sin necesidad de API paga: narrativas activas del ecosistema Hedera, tensiones de la comunidad, y qué formatos de contenido funcionan mejor en X para proyectos cripto en 2026. Base para las secciones de abajo.</p>
+        <div class="tags">
+          <span class="tag">Tendencias narrativas</span>
+          <span class="tag">Formatos de contenido</span>
+          <span class="tag">Recomendaciones editoriales</span>
+        </div>
+        <p>Fuente completa en <code>research/</code>, con enlaces citados.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Temas que están conversando -->
+  <section>
+    <h2 class="section-title">Temas que están conversando — cómo subirse a la ola</h2>
+    <p class="section-sub">Narrativas activas alrededor de Hedera en agosto 2026, y dónde hay espacio para que @HederaCommunity entre a la conversación.</p>
+    <div class="grid-3">
+      <div class="card">
+        <div class="topic-icon">RWA</div>
+        <h3>Tokenización institucional</h3>
+        <p>Archax emite "pool tokens" en Hedera con fondos de BlackRock, State Street y Legal &amp; General. Hedera lidera rankings de actividad de desarrollo en RWA.</p>
+        <p><strong>Oportunidad:</strong> hilo educativo que traduzca esto a lenguaje simple — noticia fuerte, poco digerida aún.</p>
+      </div>
+      <div class="card">
+        <div class="topic-icon">IA</div>
+        <h3>"Invisible plumbing" del reset global</h3>
+        <p>Se posiciona a HBAR como infraestructura para agentes autónomos de IA — narrativa muy activa en cripto en general, y Hedera aún no domina esa conversación.</p>
+        <p><strong>Oportunidad:</strong> conectar Hedera explícitamente con la ola "IA + rieles de pago/identidad".</p>
+      </div>
+      <div class="card">
+        <div class="topic-icon">⚠</div>
+        <h3>Tensión precio vs. fundamentales</h3>
+        <p>Precio estancado bajo $0.074–$0.08, ~88% bajo su máximo, pese a partnerships blue-chip y filings de ETF ($3M inflows en julio). Frustración visible en la comunidad.</p>
+        <p><strong>Riesgo de ignorarlo:</strong> el silencio se lee como que no se escucha a la comunidad.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Formato de contenido -->
+  <section>
+    <h2 class="section-title">Qué formato de contenido funciona mejor</h2>
+    <p class="section-sub">Patrones generales de X en 2026 para proyectos cripto. Se valida con datos reales de @HederaCommunity en cuanto se active el Camino 1.</p>
+    <div class="grid-3">
+      <div class="card">
+        <div class="format-title">Hilos</div>
+        <h3>Mayor engagement total</h3>
+        <p>Cada reply es señal extra para el algoritmo. Solo funciona si invita a leer, no si es un blogpost cortado en fragmentos. Mejor uso: explicar RWA/protocolo en lenguaje simple.</p>
+      </div>
+      <div class="card">
+        <div class="format-title">3–4×</div>
+        <h3>Más replies con imagen o video</h3>
+        <p>Posts con imagen nativa consiguen 3 a 4 veces más replies que texto solo. Video gana peso extra por el impulso de X hacia contenido audiovisual.</p>
+      </div>
+      <div class="card">
+        <div class="format-title">Memes</div>
+        <h3>Rápidos de compartir, fáciles de abusar</h3>
+        <p>Funcionan si conectan con un momento real o un pain point reconocible (ej. la tensión de precio). En exceso, restan seriedad a la marca.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Ranking social cuantitativo -->
+  <section>
+    <div class="section-head-row">
+      <div>
+        <h2 class="section-title">Ranking social cuantitativo</h2>
+        <p class="section-sub">Hedera vs. competidores L1/enterprise y por capitalización. Datos LunarCrush del 2026-08-05. Rank entre paréntesis (1 = mejor del grupo de 8), excepto AltRank donde el valor mismo ya es el ranking global (menor es mejor).</p>
+      </div>
+      <span class="pill"><span class="dot"></span>Datos en vivo</span>
+    </div>
+
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr>
+            <th>Proyecto</th>
+            <th>Interacciones 24h</th>
+            <th>Volumen social (posts)</th>
+            <th>N° creadores</th>
+            <th>Sentiment</th>
+            <th>Galaxy Score</th>
+            <th>AltRank</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="highlight">
+            <td>Hedera (HBAR)</td>
+            <td>323.564 <span class="rank">#6</span></td>
+            <td>486 <span class="rank">#8</span></td>
+            <td>271 <span class="rank">#7</span></td>
+            <td>82.0 <span class="rank">#6</span></td>
+            <td>60.2 <span class="rank">#3</span></td>
+            <td>163 <span class="rank">#4</span></td>
+          </tr>
+          <tr>
+            <td>XRP</td>
+            <td>7.166.409 <span class="rank">#4</span></td>
+            <td>11.878 <span class="rank">#3</span></td>
+            <td>3.424 <span class="rank">#4</span></td>
+            <td>86.1 <span class="rank">#2</span></td>
+            <td>50.3 <span class="rank">#7</span></td>
+            <td>414 <span class="rank">#6</span></td>
+          </tr>
+          <tr>
+            <td>Algorand</td>
+            <td>208.099 <span class="rank">#7</span></td>
+            <td>519 <span class="rank">#6</span></td>
+            <td>245 <span class="rank">#8</span></td>
+            <td>90.1 <span class="rank">#1</span></td>
+            <td>58.6 <span class="rank">#4</span></td>
+            <td>461 <span class="rank">#7</span></td>
+          </tr>
+          <tr>
+            <td>Stellar</td>
+            <td>185.379 <span class="rank">#8</span></td>
+            <td>513 <span class="rank">#7</span></td>
+            <td>279 <span class="rank">#6</span></td>
+            <td>83.0 <span class="rank">#4</span></td>
+            <td>52.4 <span class="rank">#6</span></td>
+            <td>489 <span class="rank">#8</span></td>
+          </tr>
+          <tr>
+            <td>Cardano</td>
+            <td>2.077.292 <span class="rank">#5</span></td>
+            <td>4.690 <span class="rank">#5</span></td>
+            <td>2.167 <span class="rank">#5</span></td>
+            <td>78.1 <span class="rank">#7</span></td>
+            <td>47.7 <span class="rank">#8</span></td>
+            <td>408 <span class="rank">#5</span></td>
+          </tr>
+          <tr>
+            <td>Solana</td>
+            <td>45.047.693 <span class="rank">#1</span></td>
+            <td>53.933 <span class="rank">#1</span></td>
+            <td>19.737 <span class="rank">#1</span></td>
+            <td>85.9 <span class="rank">#3</span></td>
+            <td>66.4 <span class="rank">#1</span></td>
+            <td>140 <span class="rank">#3</span></td>
+          </tr>
+          <tr>
+            <td>Ethereum</td>
+            <td>30.463.883 <span class="rank">#2</span></td>
+            <td>41.285 <span class="rank">#2</span></td>
+            <td>19.681 <span class="rank">#2</span></td>
+            <td>82.2 <span class="rank">#5</span></td>
+            <td>55.1 <span class="rank">#5</span></td>
+            <td>129 <span class="rank">#2</span></td>
+          </tr>
+          <tr>
+            <td>BNB</td>
+            <td>17.326.581 <span class="rank">#3</span></td>
+            <td>9.542 <span class="rank">#4</span></td>
+            <td>5.613 <span class="rank">#3</span></td>
+            <td>71.6 <span class="rank">#8</span></td>
+            <td>65.2 <span class="rank">#2</span></td>
+            <td>54 <span class="rank">#1</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Rendimiento por tipo de contenido -->
+  <section>
+    <h2 class="section-title">Rendimiento por tipo de contenido — tema Hedera</h2>
+    <p class="section-sub">De los 102 posts más relevantes sobre Hedera en LunarCrush ahora mismo. Video tiene muestra chica (1 post cada uno) — dirección, no certeza estadística.</p>
+    <div class="grid-3">
+      <div class="card">
+        <div class="stat-num">3.962</div>
+        <h3>Tweet — interacciones promedio</h3>
+        <p>100 de 102 posts son tweets. Formato dominante por volumen y el que mueve más interacción total en la conversación de Hedera.</p>
+      </div>
+      <div class="card">
+        <div class="stat-num">2.309</div>
+        <h3>YouTube — interacciones (1 post)</h3>
+        <p>Un solo video en la muestra ya genera más interacciones que un tweet promedio individual — señal para probar más video, no conclusión definitiva.</p>
+      </div>
+      <div class="card">
+        <div class="stat-num">201</div>
+        <h3>TikTok — interacciones (1 post)</h3>
+        <p>Formato con menor tracción en esta muestra puntual sobre Hedera.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Top voces -->
+  <section>
+    <h2 class="section-title">Top voces hablando de Hedera ahora</h2>
+    <p class="section-sub">Los 10 creadores con más interacciones mencionando Hedera en LunarCrush. Candidatos a amplificar, citar o invitar a colaborar desde @HederaCommunity.</p>
+
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Creador</th>
+            <th>Seguidores</th>
+            <th>Interacciones 24h</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>@CredibleCrypto</td><td>481.046</td><td>53.160</td></tr>
+          <tr><td>2</td><td>@Xfinancebull</td><td>43.288</td><td>28.295</td></tr>
+          <tr><td>3</td><td>@RealAllinCrypto</td><td>45.801</td><td>22.093</td></tr>
+          <tr><td>4</td><td>@dens_club</td><td>47.429</td><td>19.758</td></tr>
+          <tr><td>5</td><td>@Tokenicer</td><td>64.067</td><td>18.156</td></tr>
+          <tr><td>6</td><td>@thehbarbull</td><td>40.312</td><td>12.553</td></tr>
+          <tr><td>7</td><td>@HederaInform</td><td>9.259</td><td>11.447</td></tr>
+          <tr><td>8</td><td>@HustlerShib</td><td>8.384</td><td>7.981</td></tr>
+          <tr><td>9</td><td>@Joshuwa</td><td>271.364</td><td>6.570</td></tr>
+          <tr><td>10</td><td>@Wiseman_505</td><td>1.782</td><td>5.417</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="notice"><strong>Aviso técnico:</strong> la búsqueda directa de <code>@HederaCommunity</code> como creador en LunarCrush devolvió por error los datos de otra cuenta (Hedera Foundation) y no aparece en este top 80. Probablemente no está indexada como creator individual en LunarCrush — no se pudo medir el propio rendimiento de la cuenta por esta vía todavía.</p>
+  </section>
+
+  <!-- Insights -->
+  <section>
+    <h2 class="section-title">Insights y feedback para el equipo ejecutivo</h2>
+    <p class="section-sub">Puntos concretos para llevar a la próxima conversación con el equipo ejecutivo del programa de embajadores.</p>
+
+    <div class="insight">
+      <span class="tag-label riesgo">RIESGO</span>
+      <p><strong>Hedera es último o penúltimo del grupo de 8 en interacciones (#6), volumen social (#8) y número de creadores (#7).</strong> Frente a XRP, Solana, Ethereum, BNB y Cardano, la conversación sobre Hedera es proporcionalmente chica — incluso Algorand y Stellar, de menor capitalización, generan menos volumen pero Hedera no las supera en creadores.</p>
+    </div>
+    <div class="insight">
+      <span class="tag-label oportunidad">OPORTUNIDAD</span>
+      <p><strong>El sentiment de Hedera es sólido (82.0, #6 de 8 pero cerca del grupo medio) y el Galaxy Score la pone #3</strong> — mejor que XRP, Cardano, Ethereum y Stellar. La percepción de calidad/fundamentales está bien; lo que falta es volumen de conversación, no reputación.</p>
+    </div>
+    <div class="insight">
+      <span class="tag-label accion">ACCIÓN</span>
+      <p><strong>Solo 271 creadores únicos mencionaron a Hedera en 24h</strong> (vs. 19.737 en Solana). Foco de @HederaCommunity: activar y dar herramientas a más embajadores/partners para que publiquen, no solo optimizar el contenido de la cuenta central.</p>
+    </div>
+    <div class="insight">
+      <span class="tag-label oportunidad">OPORTUNIDAD</span>
+      <p><strong>Traducir las noticias institucionales de RWA</strong> (Archax + BlackRock/State Street/Legal &amp; General sobre Hedera) a un hilo simple. Es contenido con carga informativa alta que hoy vive dispersa en medios especializados.</p>
+    </div>
+    <div class="insight">
+      <span class="tag-label oportunidad">OPORTUNIDAD</span>
+      <p><strong>Entrar a la narrativa "IA + infraestructura de pagos/identidad" de forma explícita.</strong> "AI" es hoy el tema #1 en tendencia en todo X (dato LunarCrush) — Hedera tiene una narrativa propia de infraestructura para IA que @HederaCommunity aún no está capturando en su conversación.</p>
+    </div>
+    <div class="insight">
+      <span class="tag-label riesgo">RIESGO</span>
+      <p><strong>No ignorar la frustración de la comunidad por el precio.</strong> El silencio ante el tema se lee como que no se escucha. Mejor: contenido que lo reconozca con datos de fundamentales (desarrollo, RWA, adopción) sin sonar defensivo.</p>
+    </div>
+    <div class="insight">
+      <span class="tag-label accion">ACCIÓN</span>
+      <p><strong>No se pudo auditar el rendimiento propio de @HederaCommunity</strong> — LunarCrush no la tiene indexada como creator individual (ver aviso técnico arriba). Recomendado: pedir a LunarCrush que la indexe, o llevar el tracking de rendimiento por tipo de contenido manualmente desde X Analytics mientras tanto.</p>
+    </div>
+    <div class="insight">
+      <span class="tag-label accion">ACCIÓN</span>
+      <p><strong>Correr <code>collect_data.py</code> semanalmente</strong> (mismo día/hora) para ver tendencia real, no una sola foto — y así medir si las acciones de arriba mueven la aguja en interacciones y número de creadores a lo largo del programa de embajadores.</p>
+    </div>
+  </section>
+
+  <footer>
+    <div>
+      Datos cuantitativos: LunarCrush API, snapshot 2026-08-05 (<a href="../research/report_latest.json">report_latest.json</a>).
+      Fuentes del análisis cualitativo (Camino 2) en
+      <a href="../research/tendencias_hedera_ago2026.md">tendencias_hedera_ago2026.md</a> y
+      <a href="../research/formatos_contenido_x_2026.md">formatos_contenido_x_2026.md</a>.
+      Setup en <a href="../README.md">README.md</a>.
+    </div>
+    <div>social-ranking/dashboard/index.html</div>
+  </footer>
+
+</div>
+</body>
+</html>
