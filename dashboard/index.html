@@ -103,6 +103,14 @@
   }
   .pill .dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
 
+  .delta{
+    display:inline-flex;align-items:center;
+    font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px;
+    margin-left:6px;vertical-align:middle;
+  }
+  .delta.green{background:var(--green-bg);color:var(--green-text);}
+  .delta.rose{background:var(--rose-bg);color:var(--rose-text);}
+
   .tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
   .tag{
     font-size:12.5px;padding:5px 11px;border-radius:8px;
@@ -242,6 +250,7 @@
     <span class="badge"><span class="dot"></span>Datos LunarCrush del 2026-08-05, 16:16 UTC</span>
     <span class="badge green"><span class="dot"></span>Camino 1 · LunarCrush API — activo</span>
     <span class="badge green"><span class="dot"></span>Camino 2 · Investigación cualitativa — listo</span>
+    <span class="badge green"><span class="dot"></span>Camino 3 · X Analytics propio — activo</span>
   </div>
 
   <hr class="divider">
@@ -485,8 +494,106 @@
         </tbody>
       </table>
     </div>
-    <p class="notice"><strong>Aviso técnico:</strong> la búsqueda directa de <code>@HederaCommunity</code> como creador en LunarCrush devolvió por error los datos de otra cuenta (Hedera Foundation) y no aparece en este top 80. Probablemente no está indexada como creator individual en LunarCrush — no se pudo medir el propio rendimiento de la cuenta por esta vía todavía.</p>
+    <p class="notice"><strong>Aviso técnico:</strong> la búsqueda directa de <code>@HederaCommunity</code> como creador en LunarCrush devolvió por error los datos de otra cuenta (Hedera Foundation) y no aparece en este top 80. Probablemente no está indexada como creator individual en LunarCrush — no se pudo medir el propio rendimiento de la cuenta por esta vía.</p>
   </section>
+
+  <!-- Rendimiento propio -->
+  <!-- OWN_ACCOUNT_START -->
+  <section>
+    <div class="section-head-row">
+      <div>
+        <h2 class="section-title">Rendimiento propio — @HederaCommunity</h2>
+        <p class="section-sub">Datos nativos de X Analytics de la cuenta, semana del 13 sep al 18 sep de 2026. Variación vs. semana anterior calculada por <code>scripts/build_report.py</code>, no depende del cálculo interno de X.</p>
+      </div>
+      <span class="pill"><span class="dot"></span>Actualizado semanalmente</span>
+    </div>
+
+    <div class="grid-3">
+      <div class="card">
+        <div class="stat-num">275.847</div>
+        <h3>Impresiones <span class="delta rose">↓ 3%</span></h3>
+        <p>Total de la semana.</p>
+      </div>
+      <div class="card">
+        <div class="stat-num">2.902</div>
+        <h3>Interacciones <span class="delta green">↑ 4%</span></h3>
+        <p>Me gusta + respuestas + reposts + guardados + compartidos.</p>
+      </div>
+      <div class="card">
+        <div class="stat-num">1.1%</div>
+        <h3>Tasa de interacción <span class="delta green">↑ 8%</span></h3>
+        <p>Interacciones / impresiones de la semana.</p>
+      </div>
+    </div>
+
+    <div class="table-card" style="margin-top:20px;">
+      <table>
+        <thead>
+          <tr><th>Métrica</th><th>Esta semana</th><th>vs. semana anterior</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Nuevos seguidores (bruto)</td>
+            <td>116</td>
+            <td><span class="delta green">↑ 8%</span></td>
+          </tr>
+          <tr>
+            <td>Dejar de seguir</td>
+            <td>85</td>
+            <td><span class="delta green">↓ 15%</span></td>
+          </tr>
+          <tr>
+            <td>Me gusta</td>
+            <td>2.177</td>
+            <td><span class="delta green">↑ 5%</span></td>
+          </tr>
+          <tr>
+            <td>Respuestas</td>
+            <td>85</td>
+            <td><span class="delta green">↑ 9%</span></td>
+          </tr>
+          <tr>
+            <td>Reposts</td>
+            <td>424</td>
+            <td><span class="delta rose">↓ 5%</span></td>
+          </tr>
+          <tr>
+            <td>Visitas del perfil</td>
+            <td>163</td>
+            <td><span class="delta green">↑ 21%</span></td>
+          </tr>
+          <tr>
+            <td>Guardados</td>
+            <td>45</td>
+            <td><span class="delta rose">↓ 2%</span></td>
+          </tr>
+          <tr>
+            <td>Compartidos</td>
+            <td>8</td>
+            <td><span class="delta rose">↓ 27%</span></td>
+          </tr>
+          <tr class="highlight">
+            <td>Nuevos seguidores (neto)</td>
+            <td>31</td>
+            <td><span class="delta green">↑ 343%</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="grid-2" style="margin-top:20px;">
+      <div class="card">
+        <div class="stat-num">11.400</div>
+        <h3>Seguidores verificados</h3>
+        <p>De 144.800 seguidores totales (8%). Dato manual de X Analytics (no viene en el CSV exportable).</p>
+      </div>
+      <div class="card">
+        <div class="stat-num">62.200</div>
+        <h3>Active followers</h3>
+        <p>De 144.800 seguidores totales (43%). Dato manual de X Analytics (no viene en el CSV exportable).</p>
+      </div>
+    </div>
+  </section>
+  <!-- OWN_ACCOUNT_END -->
 
   <!-- Insights -->
   <section>
@@ -518,8 +625,12 @@
       <p><strong>No ignorar la frustración de la comunidad por el precio.</strong> El silencio ante el tema se lee como que no se escucha. Mejor: contenido que lo reconozca con datos de fundamentales (desarrollo, RWA, adopción) sin sonar defensivo.</p>
     </div>
     <div class="insight">
+      <span class="tag-label oportunidad">OPORTUNIDAD</span>
+      <p><strong>Nuevos seguidores netos subieron de 7 a 31 y la tasa de interacción mejoró 8%</strong> entre la semana del 29 ago–3 sep y la del 13–18 sep (ver "Rendimiento propio" arriba). Vale identificar qué se publicó distinto esa semana para repetirlo. Nota: falta el CSV del 4 al 12 de septiembre, así que esta comparación salta un tramo — no es semana consecutiva estricta.</p>
+    </div>
+    <div class="insight">
       <span class="tag-label accion">ACCIÓN</span>
-      <p><strong>No se pudo auditar el rendimiento propio de @HederaCommunity</strong> — LunarCrush no la tiene indexada como creator individual (ver aviso técnico arriba). Recomendado: pedir a LunarCrush que la indexe, o llevar el tracking de rendimiento por tipo de contenido manualmente desde X Analytics mientras tanto.</p>
+      <p><strong>Pedir a LunarCrush que indexe a @HederaCommunity como creator individual</strong> (ver aviso técnico arriba) — mientras tanto, el rendimiento propio ya se trackea semanalmente vía X Analytics + <code>scripts/build_report.py</code> (Camino 3), sin depender de esa indexación.</p>
     </div>
     <div class="insight">
       <span class="tag-label accion">ACCIÓN</span>
@@ -533,6 +644,7 @@
       Fuentes del análisis cualitativo (Camino 2) en
       <a href="../research/tendencias_hedera_ago2026.md">tendencias_hedera_ago2026.md</a> y
       <a href="../research/formatos_contenido_x_2026.md">formatos_contenido_x_2026.md</a>.
+      Rendimiento propio (Camino 3): X Analytics, CSVs semanales en <a href="../research/x_analytics/">research/x_analytics/</a>.
       Setup en <a href="../README.md">README.md</a>.
     </div>
     <div>social-ranking/dashboard/index.html</div>
