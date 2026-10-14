@@ -1,0 +1,20 @@
+{
+  "month": "2026-09",
+  "label": "septiembre 2026",
+  "source": "Reporte mensual de X Analytics, 1–30 sep 2026, comparado por X contra agosto 2026.",
+  "metrics": [
+    {"label": "Impresiones", "value": "1.2M", "delta": 13},
+    {"label": "Visitas del perfil", "value": "722", "delta": -5.1},
+    {"label": "Tasa de interacción", "value": "1%", "delta": -20},
+    {"label": "Respuestas", "value": "307", "delta": -35},
+    {"label": "Me gusta", "value": "9.3K", "delta": -7},
+    {"label": "Reposts", "value": "1.8K", "delta": -14},
+    {"label": "Guardados", "value": "186", "delta": -28},
+    {"label": "Compartidos", "value": "34", "delta": -44}
+  ],
+  "totals": [
+    {"label": "Nuevos seguidores", "value": "668"},
+    {"label": "Posts (originales + citados)", "value": "180"}
+  ],
+  "takeaway": "el alcance creció (impresiones +13%, +668 seguidores) pero no fue un impulso amplio: dependió de pocos momentos de alto alcance. Los 10 mejores posts del mes (5.6% de los 180 publicados) concentraron 19.6% de las impresiones, y el post del primer cumpleaños del programa (17 sep) por sí solo aportó 3.35%. Al mismo tiempo casi todas las métricas de calidad de interacción cayeron: la audiencia vio más la cuenta pero interactuó menos por impresión — el alcance superó a la resonancia."
+}

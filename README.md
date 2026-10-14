@@ -31,15 +31,10 @@ Flujo semanal:
 
 1. Exportar el CSV "Account overview" desde [analytics.x.com](https://analytics.x.com) para la cuenta `@HederaCommunity`.
 2. Guardarlo en `research/x_analytics/` con el nombre `YYYY-MM-DD_YYYY-MM-DD.csv` (fecha de inicio y fin del período que cubre el CSV).
-3. Correr:
+3. Correr `python scripts/build_report.py`.
 
-   ```bash
-   python scripts/build_report.py \
-     --seguidores-verificados 11400/144900 \
-     --active-followers 63500/144900
-   ```
+   Seguidores verificados y active followers no vienen en el CSV, solo en el resumen visual de X Analytics. Cuando tengas números nuevos, pásalos con `--seguidores-verificados 11400/144900 --active-followers 63500/144900`; se guardan en `research/x_analytics/manual.json` con su fecha y se siguen mostrando en las corridas siguientes.
 
-   Los dos flags son opcionales — esos 2 números (seguidores verificados y active followers) no vienen en el CSV exportable, solo en el resumen visual de X Analytics, así que hay que pasarlos a mano cada semana si se quieren mostrar. Si en algún momento el CSV los incluye como columnas, el script los toma de ahí directamente y los flags dejan de ser necesarios.
-
-4. El script calcula solo las variaciones (↑/↓ %) comparando contra el CSV de la semana anterior guardado en `research/x_analytics/` — no depende de los porcentajes que muestra X Analytics en pantalla. Con una sola semana de datos, esas variaciones se muestran como "semana anterior no disponible" hasta que haya al menos dos CSVs.
-5. Revisar el diff de `dashboard/index.html`, hacer commit y push (Vercel redeploya solo).
+4. El script calcula las variaciones (↑/↓ %) contra el CSV anterior sobre **promedio diario**, así que períodos de distinta duración (6 vs 9 días) siguen siendo comparables. No depende de los porcentajes de X Analytics en pantalla. Sin un CSV anterior se muestra "período anterior no disponible".
+5. Reporte mensual (opcional): guardar las métricas en `research/x_analytics/monthly/YYYY-MM.json` (ver `2026-09.json` como plantilla); el script muestra el más reciente. Ahí las variaciones son las que reporta X contra el mes anterior.
+6. Revisar el diff de `dashboard/index.html`, hacer commit y push (Vercel redeploya solo).

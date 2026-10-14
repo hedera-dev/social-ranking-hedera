@@ -1,30 +1,40 @@
 #!/usr/bin/env python3
 """Actualiza la sección "Rendimiento propio" de dashboard/index.html a partir
-de los CSV semanales de X Analytics guardados en research/x_analytics/.
+de los CSV de X Analytics guardados en research/x_analytics/.
 
-Uso semanal:
+Uso:
     1. Exportar el CSV "Account overview" desde analytics.x.com.
     2. Guardarlo en research/x_analytics/ con el nombre YYYY-MM-DD_YYYY-MM-DD.csv
        (fecha de inicio y fin del período que cubre el CSV).
     3. Correr:
+         python scripts/build_report.py
+
+    Opcional, solo cuando tengas los números nuevos (no vienen en el CSV, solo
+    en el resumen visual de X Analytics):
          python scripts/build_report.py \
              --seguidores-verificados 11400/144900 \
              --active-followers 63500/144900
+    Se guardan en research/x_analytics/manual.json con la fecha del período y
+    se siguen mostrando (con su fecha) en las corridas siguientes.
 
-    Los dos flags son opcionales (esos 2 números no vienen en el CSV, solo en
-    el resumen visual de X Analytics). Si no se pasan, se conserva lo que ya
-    había en el reporte. Si el CSV algún día trae columnas
-    "Seguidores verificados" / "Active followers", el script las usa
-    directamente y los flags dejan de ser necesarios.
+    Reporte mensual (opcional): research/x_analytics/monthly/YYYY-MM.json.
+    Se muestra el más reciente.
+
+Las variaciones se calculan sobre promedio diario contra el CSV anterior, así
+que períodos de distinta duración (6 vs 9 días) siguen siendo comparables.
 """
 import argparse
 import csv
+import json
 import re
 import sys
+from datetime import date
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 CSV_DIR = REPO_ROOT / "research" / "x_analytics"
+MONTHLY_DIR = CSV_DIR / "monthly"
+MANUAL_PATH = CSV_DIR / "manual.json"
 REPORT_PATH = REPO_ROOT / "dashboard" / "index.html"
 
 START_MARKER = "<!-- OWN_ACCOUNT_START -->"
@@ -53,8 +63,12 @@ def sums(rows):
     return {field: sum(r[field] for r in rows) for field in METRIC_FIELDS}
 
 
+def period_days(start_iso, end_iso):
+    return (date.fromisoformat(end_iso) - date.fromisoformat(start_iso)).days + 1
+
+
 def fmt_date(iso):
-    y, m, d = iso.split("-")
+    _, m, d = iso.split("-")
     return f"{int(d)} {MESES[int(m) - 1]}"
 
 
@@ -68,16 +82,23 @@ def delta_pct(current, previous):
     return (current - previous) / previous * 100
 
 
-def delta_badge(pct, invert=False):
-    """invert=True para métricas donde bajar es bueno (no se usa hoy, placeholder)."""
+def delta_per_day(cur, cur_days, prev, prev_days):
+    if prev is None:
+        return None
+    return delta_pct(cur / cur_days, prev / prev_days)
+
+
+def delta_badge(pct, invert=False, precise=False):
+    """invert=True para métricas donde bajar es bueno."""
     if pct is None:
-        return '<span class="rank">semana anterior no disponible</span>'
+        return '<span class="rank">período anterior no disponible</span>'
     good = pct >= 0
     if invert:
         good = not good
     arrow = "↑" if pct >= 0 else "↓"
     cls = "green" if good else "rose"
-    return f'<span class="delta {cls}">{arrow} {abs(pct):.0f}%</span>'
+    value = f"{abs(pct):g}" if precise else f"{abs(pct):.0f}"
+    return f'<span class="delta {cls}">{arrow} {value}%</span>'
 
 
 def load_periods():
@@ -96,11 +117,17 @@ def parse_ratio_flag(value):
     if value is None:
         return None
     part, total = value.split("/")
-    return int(part), int(total)
+    return [int(part), int(total)]
 
 
-def render_manual_stat(label, ratio):
-    if ratio is None:
+def load_manual():
+    if MANUAL_PATH.exists():
+        return json.loads(MANUAL_PATH.read_text(encoding="utf-8"))
+    return {}
+
+
+def render_manual_stat(label, ratio, as_of):
+    if not ratio:
         return ""
     part, total = ratio
     pct = part / total * 100
@@ -108,11 +135,56 @@ def render_manual_stat(label, ratio):
       <div class="card">
         <div class="stat-num">{fmt_int(part)}</div>
         <h3>{label}</h3>
-        <p>De {fmt_int(total)} seguidores totales ({pct:.0f}%). Dato manual de X Analytics (no viene en el CSV exportable).</p>
+        <p>De {fmt_int(total)} seguidores totales ({pct:.0f}%). Dato manual de X Analytics al {fmt_date(as_of)} (no viene en el CSV exportable).</p>
       </div>"""
 
 
-def render_section(start_iso, end_iso, current_sums, previous_sums, verified_ratio, active_ratio):
+def load_monthly():
+    files = sorted(MONTHLY_DIR.glob("*.json")) if MONTHLY_DIR.exists() else []
+    if not files:
+        return None
+    return json.loads(files[-1].read_text(encoding="utf-8"))
+
+
+def render_monthly(m):
+    if not m:
+        return ""
+    rows = ""
+    for item in m["metrics"]:
+        rows += f"""
+          <tr>
+            <td>{item["label"]}</td>
+            <td>{item["value"]}</td>
+            <td>{delta_badge(item["delta"], precise=True)}</td>
+          </tr>"""
+    for item in m.get("totals", []):
+        rows += f"""
+          <tr>
+            <td>{item["label"]}</td>
+            <td>{item["value"]}</td>
+            <td><span class="rank">—</span></td>
+          </tr>"""
+    takeaway = f'\n    <p class="notice"><strong>Conclusión del reporte:</strong> {m["takeaway"]}</p>' if m.get("takeaway") else ""
+    return f"""
+
+    <h3 class="section-title" style="font-size:20px;margin:40px 0 8px;">Resumen mensual — {m["label"]}</h3>
+    <p class="section-sub" style="margin-bottom:16px;">{m["source"]}</p>
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr><th>Métrica</th><th>{m["label"]}</th><th>vs. mes anterior (según X)</th></tr>
+        </thead>
+        <tbody>{rows}
+        </tbody>
+      </table>
+    </div>{takeaway}"""
+
+
+def render_section(cur_range, prev_range, current_sums, previous_sums, manual, monthly):
+    start_iso, end_iso = cur_range
+    cur_days = period_days(*cur_range)
+    prev_days = period_days(*prev_range) if prev_range else None
+
     impresiones = current_sums["Impresiones"]
     interacciones = current_sums["Interacciones"]
     nuevos_neto = current_sums["Nuevos seguidores"] - current_sums["Dejar de seguir"]
@@ -137,7 +209,7 @@ def render_section(start_iso, end_iso, current_sums, previous_sums, verified_rat
     for field, label, invert in secondary_labels:
         cur = current_sums[field]
         prev = previous_sums[field] if previous_sums else None
-        pct = delta_pct(cur, prev)
+        pct = delta_per_day(cur, cur_days, prev, prev_days)
         secondary_rows += f"""
           <tr>
             <td>{label}</td>
@@ -145,54 +217,60 @@ def render_section(start_iso, end_iso, current_sums, previous_sums, verified_rat
             <td>{delta_badge(pct, invert=invert)}</td>
           </tr>"""
 
-    manual_cards = render_manual_stat("Seguidores verificados", verified_ratio) + \
-        render_manual_stat("Active followers", active_ratio)
+    as_of = manual.get("as_of")
+    manual_cards = render_manual_stat("Seguidores verificados", manual.get("seguidores_verificados"), as_of) + \
+        render_manual_stat("Active followers", manual.get("active_followers"), as_of)
     manual_block = f"""
     <div class="grid-2" style="margin-top:20px;">{manual_cards}
     </div>""" if manual_cards else ""
+
+    if prev_range:
+        comparison = f"Variaciones vs. el período anterior ({fmt_date(prev_range[0])} al {fmt_date(prev_range[1])}, {prev_days} días), calculadas por <code>scripts/build_report.py</code> sobre promedio diario — no dependen del cálculo interno de X."
+    else:
+        comparison = "Sin período anterior para comparar todavía."
 
     return f"""{START_MARKER}
   <section>
     <div class="section-head-row">
       <div>
         <h2 class="section-title">Rendimiento propio — @HederaCommunity</h2>
-        <p class="section-sub">Datos nativos de X Analytics de la cuenta, semana del {fmt_date(start_iso)} al {fmt_date(end_iso)} de {end_iso[:4]}. Variación vs. semana anterior calculada por <code>scripts/build_report.py</code>, no depende del cálculo interno de X.</p>
+        <p class="section-sub">Datos nativos de X Analytics de la cuenta, del {fmt_date(start_iso)} al {fmt_date(end_iso)} de {end_iso[:4]} ({cur_days} días). {comparison}</p>
       </div>
-      <span class="pill"><span class="dot"></span>Actualizado semanalmente</span>
+      <span class="pill"><span class="dot"></span>Actualizado periódicamente</span>
     </div>
 
     <div class="grid-3">
       <div class="card">
         <div class="stat-num">{fmt_int(impresiones)}</div>
-        <h3>Impresiones {delta_badge(delta_pct(impresiones, prev_impresiones))}</h3>
-        <p>Total de la semana.</p>
+        <h3>Impresiones {delta_badge(delta_per_day(impresiones, cur_days, prev_impresiones, prev_days))}</h3>
+        <p>Total del período.</p>
       </div>
       <div class="card">
         <div class="stat-num">{fmt_int(interacciones)}</div>
-        <h3>Interacciones {delta_badge(delta_pct(interacciones, prev_interacciones))}</h3>
+        <h3>Interacciones {delta_badge(delta_per_day(interacciones, cur_days, prev_interacciones, prev_days))}</h3>
         <p>Me gusta + respuestas + reposts + guardados + compartidos.</p>
       </div>
       <div class="card">
         <div class="stat-num">{tasa:.1f}%</div>
         <h3>Tasa de interacción {delta_badge(delta_pct(tasa, prev_tasa))}</h3>
-        <p>Interacciones / impresiones de la semana.</p>
+        <p>Interacciones / impresiones del período.</p>
       </div>
     </div>
 
     <div class="table-card" style="margin-top:20px;">
       <table>
         <thead>
-          <tr><th>Métrica</th><th>Esta semana</th><th>vs. semana anterior</th></tr>
+          <tr><th>Métrica</th><th>Este período</th><th>vs. período anterior</th></tr>
         </thead>
         <tbody>{secondary_rows}
           <tr class="highlight">
             <td>Nuevos seguidores (neto)</td>
             <td>{fmt_int(nuevos_neto)}</td>
-            <td>{delta_badge(delta_pct(nuevos_neto, prev_nuevos_neto))}</td>
+            <td>{delta_badge(delta_per_day(nuevos_neto, cur_days, prev_nuevos_neto, prev_days))}</td>
           </tr>
         </tbody>
       </table>
-    </div>{manual_block}
+    </div>{manual_block}{render_monthly(monthly)}
   </section>
   {END_MARKER}"""
 
@@ -212,17 +290,27 @@ def main():
     current_sums = sums(parse_csv(current_path))
 
     previous_sums = None
+    prev_range = None
     if len(periods) >= 2:
-        _, _, previous_path = periods[-2]
+        prev_start, prev_end, previous_path = periods[-2]
         previous_sums = sums(parse_csv(previous_path))
+        prev_range = (prev_start, prev_end)
         print(f"Comparando {current_path.name} vs. {previous_path.name}")
     else:
-        print(f"Solo hay una semana de datos ({current_path.name}); sin comparación.")
+        print(f"Solo hay un período de datos ({current_path.name}); sin comparación.")
 
-    verified_ratio = parse_ratio_flag(args.seguidores_verificados)
-    active_ratio = parse_ratio_flag(args.active_followers)
+    manual = load_manual()
+    verified = parse_ratio_flag(args.seguidores_verificados)
+    active = parse_ratio_flag(args.active_followers)
+    if verified or active:
+        if verified:
+            manual["seguidores_verificados"] = verified
+        if active:
+            manual["active_followers"] = active
+        manual["as_of"] = end_iso
+        MANUAL_PATH.write_text(json.dumps(manual, indent=2) + "\n", encoding="utf-8")
 
-    new_section = render_section(start_iso, end_iso, current_sums, previous_sums, verified_ratio, active_ratio)
+    new_section = render_section((start_iso, end_iso), prev_range, current_sums, previous_sums, manual, load_monthly())
 
     html = REPORT_PATH.read_text(encoding="utf-8")
     if START_MARKER not in html or END_MARKER not in html:
@@ -230,11 +318,9 @@ def main():
         sys.exit(1)
 
     pattern = re.compile(re.escape(START_MARKER) + r".*?" + re.escape(END_MARKER), re.DOTALL)
-    html = pattern.sub(new_section.replace("\\", "\\\\"), html, count=1)
+    html = pattern.sub(lambda _: new_section, html, count=1)
     REPORT_PATH.write_text(html, encoding="utf-8")
-    print(f"Listo: {REPORT_PATH} actualizado con la semana {start_iso} -> {end_iso}.")
-    if verified_ratio is None and active_ratio is None:
-        print("Nota: no se pasaron --seguidores-verificados / --active-followers, esos 2 cards no se mostraron esta corrida.")
+    print(f"Listo: {REPORT_PATH} actualizado con el período {start_iso} -> {end_iso}.")
 
 
 if __name__ == "__main__":
